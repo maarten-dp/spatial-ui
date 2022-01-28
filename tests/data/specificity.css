@@ -1,0 +1,13 @@
+List {
+    width: 100px;
+}
+
+Set {
+    width: 150px;
+    color: red;
+}
+
+List Set {
+    border: 1px;
+}
+
