@@ -72,11 +72,14 @@ class GLFWWindow:
         self.width = width
         self.height = height
         self.last_time = glfw.get_time()
+        self._current_delta = 0
         self._setup()
 
     def _setup(self):
         self._create_window()
         self._setup_hooks()
+        # uncomment to disable 60fps
+        # glfw.swap_interval(0)
 
     def _create_window(self):
         glfw.init()
@@ -120,6 +123,7 @@ class GLFWWindow:
         current_time = glfw.get_time()
         delta = current_time - self.last_time
         self.last_time = current_time
+        self._current_delta = delta
         return delta
 
     @property
@@ -209,12 +213,14 @@ class SkiaBoxPainter:
             self.simple_box_painter.draw_style_box(style_box)
 
         for child in style_box.children:
-            if style_box.style.overflow in ["hidden", "clip"]:
+            if style_box.needs_clip():
                 with clip(self.canvas, style_box.container.content):
                     self._draw_child(child, style_box)
             else:
                 self._draw_child(child, style_box)
-
+        if style_box.is_scrollable():
+            print("drawing scrollbar")
+            self.draw_scrollbar(style_box)
 
     def _draw_child(self, child, parent):
         if child.style.display == "none":
@@ -227,6 +233,8 @@ class SkiaBoxPainter:
             x_offset = text_sibling._get_x_offset(caret_index)
             child.container.content.x = parent.container.content.x + x_offset
             self.draw_style_box(child)
+        elif child.node.node_type == NodeType.SCROLLBAR:
+            self.draw_style_box(child)
         elif child.node.node_type == NodeType.PLACEHOLDER:
             if child.parent.raw_content.must_draw:
                 self.draw_text(child.children[0])
@@ -234,6 +242,11 @@ class SkiaBoxPainter:
             self.draw_text(child)
         else:
             raise ValueError("Unknown NodeType {child.node.node_type}")
+
+    def draw_scrollbar(self, parent_box):
+        print("drawing scrollbar")
+        # layout = ScrollbarLayout().render_layout(parent_box)
+        # self._draw_child(layout, parent)
 
     def draw_text(self, child):
         # font_paint = skia.Paint(Color=child.style.color, AntiAlias=True)
@@ -331,7 +344,7 @@ class DiagnosticPainter:
 
     def draw_fps(self, fps):
         self.fps_history.append(fps)
-        if len(self.fps_history) > 40:
+        if len(self.fps_history) > 60:
             self.fps_history.pop(0)
         fps = int(mean(self.fps_history))
         self.draw_text(f"{fps} fps", line=0)
@@ -586,8 +599,8 @@ class App:
             mouse_event = MouseEventGroup(self)
         if window is None:
             window = GLFWWindow(self.width, self.height)
-            window.set_hover_handler(mouse_event.hover_handler)
-            window.set_button_handler(mouse_event.button_press_handler)
+        window.set_hover_handler(mouse_event.hover_handler)
+        window.set_button_handler(mouse_event.button_press_handler)
         if surface is None:
             surface = SkiaSurface(self.width, self.height)
         if box_painter is None:
@@ -631,9 +644,12 @@ class App:
             "focus": setup_focus_handlers,
         }
 
-        for name in node.style.values.keys():
-            if name in pseudo_handlers:
-                pseudo_handlers[name](node)
+        for name, handler in pseudo_handlers.items():
+            handler(node)
+
+        # for name in node.style.values.keys():
+        #     if name in pseudo_handlers:
+        #         pseudo_handlers[name](node)
 
         ui_element = node.node.raw_content
         if isinstance(ui_element, Element):
@@ -666,81 +682,3 @@ class App:
     def stop(self):
         self.surface.close()
         self.window.close()
-
-
-from spatial_ui.layout_engine import render_layout
-from spatial_ui.layout_engine.helpers import node_tree_from_nested_struct
-from spatial_ui.elements import Button, Panel, Input, Table
-from spatial_ui.data_connection.sqla import SQLADataReader
-
-css_file = osp.join(osp.abspath(osp.dirname(__file__)), "test.css")
-layout = CSSLayout.from_filepath(css_file, observe=True)
-window = App(width=500, height=500, layout=layout)
-# layout.set_element_tree(tuple([list(["Test"]), list(["testtesttesttest"])]))
-
-
-from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.declarative import declarative_base
-
-
-def get_session():
-    engine = create_engine("sqlite:///")
-    with Session(engine) as session:
-        Base.metadata.create_all(engine)
-        yield session
-
-
-Base = declarative_base()
-
-class Adiminimini(Base):
-    __tablename__ = 'adiminimini'
-
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
-
-
-session = next(get_session())
-session.add(Adiminimini(first_name="Eric", last_name="Gazoni"))
-session.add(Adiminimini(first_name="Maarten", last_name="De Paepe"))
-session.add(Adiminimini(first_name="Jens", last_name="Roelant"))
-session.add(Adiminimini(first_name="Bram", last_name="Vereertbrugghen"))
-session.add(Adiminimini(first_name="Kenny", last_name="Van de Maele"))
-session.add(Adiminimini(first_name="Pierre", last_name="Savatte"))
-session.add(Adiminimini(first_name="Jean", last_name="Nassar"))
-session.add(Adiminimini(first_name="Aurélie", last_name="Pradeau"))
-session.add(Adiminimini(first_name="Benjamin", last_name="Grandhomme"))
-session.add(Adiminimini(first_name="Hans", last_name="Degroote"))
-session.add(Adiminimini(first_name="Ann", last_name="Peeters"))
-session.commit()
-
-data_connection = SQLADataReader(session, Adiminimini, show_index=False)
-
-panel = Panel(
-    # Button("Test"),
-    # Button("testtest"),
-    # Input(placeholder="Full name"),
-    Table(data_connection=data_connection),
-)
-
-
-layout.set_element_tree(panel)
-
-# label = Label("Input something")
-# input_field = Input(placeholder="Your input")
-# save = Button("Save")
-# cancel = Button("cancel")
-
-# def print_value(sender):
-#     print(input_field.value)
-
-# save.on_click(print_value)
-# cancel.on_click(lambda s: window.stop())
-
-# panel = Panel(
-#     Panel(label, input_field),
-#     Panel(save, cancel)
-# )
-# window.add(panel)
-window.run_forever()

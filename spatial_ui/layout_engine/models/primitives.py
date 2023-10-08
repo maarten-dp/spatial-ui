@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from .base import BaseModel
 
 
 # def get_bounding_rect(rects: Iterator[Rect]) -> Rect:

@@ -1,0 +1,15 @@
+Button {
+    min-width: 75px;
+    width: 460px;
+    height: 30px;
+    font-family: arial;
+    font-size: 20px;
+    background-color: #334191;
+    border-radius: 5px 5px 5px 5px;
+    margin: 5px;
+    padding: 5px;
+    text-align: center;
+    line-height: 25px;
+
+    overflow: hidden;
+}

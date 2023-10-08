@@ -1,80 +1,49 @@
-from copy import deepcopy
-
-try:
-    from tinycss.speedups import CToken
-    Token = CToken
-except ImportError:
-    from tinycss.token_data import Token
-    from tinycss.token_data import FunctionToken
+from ..models.value import QuantifiedValue
 
 
-from .helpers import Dimension
-
-
-class NotSupportedError(Exception):
-    pass
-
-
-def clean_value_for(property_name, *values):
-    values = [_sanitize_value(v) for v in values]
-    if property_name in UNPACK:
-        return UNPACK[property_name](*values)
-    if len(values) == 1:
-        return {property_name: values[0]}
-    return {property_name: values}
-
-
-def _sanitize_value(value):
-    if isinstance(value, Token):
-        if value.type in ("DIMENSION", "PERCENTAGE"):
-            return Dimension(value.value, value.unit)
-        elif value.type in ("HASH"):
-            return 0xff000000 | int(value.value[1:], base=16)
-        elif value.type in ("IDENT") and value.value in COLORS:
-            return COLORS[value.value]
-        else:
-            return value.value
-    if isinstance(value, FunctionToken):
-        if value.function_name == "rgba":
-            args = [v for v in value.content if v.type not in ["DELIM", "S"]]
-            alpha = int(args.pop(-1).value * 255)
-            value = alpha
-            for arg in args:
-                value = value << 8
-                value += arg.value
-            return value
-    return value
-
-
-def default_value_for(property_name):
-    if property_name in UNPACK:
-        return UNPACK[property_name]()
-    value = DEFAULT_PROPERTY_VALUES.get(property_name)
-    if value is None:
-        raise NotSupportedError(f"{property_name} is not supported")
-    return {property_name: value}
-
-
-def unpack_to(*properties):
-    default = {n: DEFAULT_PROPERTY_VALUES[n] for n in properties}
-
-    def unpacker(*values):
-        if len(values) == 1:
-            values = values * len(properties)
-        return_dict = deepcopy(default)
-        return_dict.update(dict(zip(properties, values)))
-        return return_dict
-    return unpacker
-
-
-def unpack_from_sub_unpacker(*properties):
-    def unpacker(*values):
-        return_dict = {}
-        for property in properties:
-            return_dict.update(UNPACK[property](*values))
-        return return_dict
-    return unpacker
-
+INHERIT = [
+    'azimuth',
+    'border-collapse',
+    'border-spacing',
+    'caption-side',
+    'color',
+    'cursor',
+    'direction',
+    'elevation',
+    'empty-cells',
+    'font-family',
+    'font-size',
+    'font-style',
+    'font-variant',
+    'font-weight',
+    'font',
+    'letter-spacing',
+    'line-height',
+    'list-style-image',
+    'list-style-position',
+    'list-style-type',
+    'list-style',
+    'orphans',
+    'pitch-range',
+    'pitch',
+    'quotes',
+    'richness',
+    'speak-header',
+    'speak-numeral',
+    'speak-punctuation',
+    'speak',
+    'speech-rate',
+    'stress',
+    'text-align',
+    'text-indent',
+    'text-transform',
+    'visibility',
+    'voice-family',
+    'volume',
+    'white-space',
+    'widows',
+    'word-spacing',
+]
 
 COLORS = {
     "transparent": 0x00000000,
@@ -244,7 +213,6 @@ COLORS = {
 
 }
 
-
 DEFAULT_PROPERTY_VALUES = {
     # Unpacked by background
     "background-attachment": "scroll", 
@@ -254,7 +222,7 @@ DEFAULT_PROPERTY_VALUES = {
     "background-repeat": "repeat", 
 
     "border-collapse": "separate",
-    "border-spacing": Dimension(0, 'px'),
+    "border-spacing": QuantifiedValue(0, 'px'),
 
     # "border": "see" individual properties, 
 
@@ -272,42 +240,42 @@ DEFAULT_PROPERTY_VALUES = {
     
 
     # "border-width": "see" individual properties, 
-    "border-top-width": Dimension(0, 'px'),
-    "border-right-width": Dimension(0, 'px'),
-    "border-bottom-width": Dimension(0, 'px'),
-    "border-left-width": Dimension(0, 'px'),
+    "border-top-width": QuantifiedValue(0, 'px'),
+    "border-right-width": QuantifiedValue(0, 'px'),
+    "border-bottom-width": QuantifiedValue(0, 'px'),
+    "border-left-width": QuantifiedValue(0, 'px'),
 
     "border-radius": (
-        Dimension(0, 'px'),
-        Dimension(0, 'px'),
-        Dimension(0, 'px'),
-        Dimension(0, 'px')
+        QuantifiedValue(0, 'px'),
+        QuantifiedValue(0, 'px'),
+        QuantifiedValue(0, 'px'),
+        QuantifiedValue(0, 'px')
     ),
 
     # "font": "see" individual properties, 
     "font-family": "arial", 
-    "font-size": Dimension(16, 'px'), 
+    "font-size": QuantifiedValue(16, 'px'), 
     "font-style": "normal", 
     "font-variant": "normal", 
     "font-weight": "normal",
-    "line-height": Dimension(0, 'px'), 
+    "line-height": QuantifiedValue(0, 'px'), 
 
     # "padding": "see" individual properties, 
-    "padding-top": Dimension(0, 'px'),
-    "padding-right": Dimension(0, 'px'),
-    "padding-bottom": Dimension(0, 'px'),
-    "padding-left": Dimension(0, 'px'),
+    "padding-top": QuantifiedValue(0, 'px'),
+    "padding-right": QuantifiedValue(0, 'px'),
+    "padding-bottom": QuantifiedValue(0, 'px'),
+    "padding-left": QuantifiedValue(0, 'px'),
 
     # "margin": "see" individual properties, 
-    "margin-right": Dimension(0, 'px'),
-    "margin-left": Dimension(0, 'px'),
-    "margin-top": Dimension(0, 'px'),
-    "margin-bottom": Dimension(0, 'px'),
+    "margin-right": QuantifiedValue(0, 'px'),
+    "margin-left": QuantifiedValue(0, 'px'),
+    "margin-top": QuantifiedValue(0, 'px'),
+    "margin-bottom": QuantifiedValue(0, 'px'),
 
     # "outline": "see" individual properties, 
     "outline-color": "invert", 
     "outline-style": "none", 
-    "outline-width": Dimension(0, 'px'), 
+    "outline-width": QuantifiedValue(0, 'px'), 
 
     "top": "auto", 
     "right": "auto", 
@@ -318,8 +286,8 @@ DEFAULT_PROPERTY_VALUES = {
     "height": "auto", 
     "max-height": "none", 
     "max-width": "none", 
-    "min-height": Dimension(0, 'px'),
-    "min-width": Dimension(0, 'px'),
+    "min-height": QuantifiedValue(0, 'px'),
+    "min-width": QuantifiedValue(0, 'px'),
     "overflow": "visible", 
     "position": "static", 
 
@@ -327,7 +295,6 @@ DEFAULT_PROPERTY_VALUES = {
     "float": "none",
 
     "vertical-align": "baseline", 
-    "text-align": "left",
 
     "color": COLORS["white"], 
     "content": "normal", 
@@ -335,10 +302,6 @@ DEFAULT_PROPERTY_VALUES = {
     "display": "block", 
     "visibility": "visible", 
     "z-index": "auto", 
-
-    "animation-name": "none",
-    "animation-iteration-count": 1,
-    "animation-fill-mode": "none"
 
     # CURRENTLY UNSUPPORTED
 
@@ -377,6 +340,7 @@ DEFAULT_PROPERTY_VALUES = {
     # "speech-rate": "medium", 
     # "stress": "50"
     # "table-layout": "auto", 
+    # "text-align": "a" nameless value that acts as "left": "if" "direction": "is" "ltr", "right": "if" "direction": "is" "rtl": "
     # "text-decoration": "none", 
     # "text-indent": "0"
     # "text-transform": "none", 
@@ -386,129 +350,4 @@ DEFAULT_PROPERTY_VALUES = {
     # "white-space": "normal", 
     # "widows": "2"
     # "word-spacing": "normal", 
-}
-
-INHERIT = [
-    'azimuth',
-    'border-collapse',
-    'border-spacing',
-    'caption-side',
-    'color',
-    'cursor',
-    'direction',
-    'elevation',
-    'empty-cells',
-    'font-family',
-    'font-size',
-    'font-style',
-    'font-variant',
-    'font-weight',
-    'font',
-    'letter-spacing',
-    'line-height',
-    'list-style-image',
-    'list-style-position',
-    'list-style-type',
-    'list-style',
-    'orphans',
-    'pitch-range',
-    'pitch',
-    'quotes',
-    'richness',
-    'speak-header',
-    'speak-numeral',
-    'speak-punctuation',
-    'speak',
-    'speech-rate',
-    'stress',
-    'text-align',
-    'text-indent',
-    'text-transform',
-    'visibility',
-    'voice-family',
-    'volume',
-    'white-space',
-    'widows',
-    'word-spacing',
-]
-
-
-UNPACK = {
-    "margin": unpack_to(
-        'margin-top',
-        'margin-right',
-        'margin-bottom',
-        'margin-left'
-    ),
-    "padding": unpack_to(
-        'padding-top',
-        'padding-right',
-        'padding-bottom',
-        'padding-left'
-    ),
-    "border": unpack_from_sub_unpacker(
-        'border-top',
-        'border-right',
-        'border-bottom',
-        'border-left'
-    ),
-    "border-top": unpack_to(
-        'border-top-width',
-        'border-top-style',
-        'border-top-color',
-    ),
-    "border-right": unpack_to(
-        'border-right-width',
-        'border-right-style',
-        'border-right-color',
-    ),
-    "border-bottom": unpack_to(
-        'border-bottom-width',
-        'border-bottom-style',
-        'border-bottom-color',
-    ),
-    "border-left": unpack_to(
-        'border-left-width',
-        'border-left-style',
-        'border-left-color',
-    ),
-    "border-color": unpack_to(
-        'border-top-color',
-        'border-right-color',
-        'border-bottom-color',
-        'border-left-color'
-    ),
-    "border-width": unpack_to(
-        'border-top-width',
-        'border-right-width',
-        'border-bottom-width',
-        'border-left-width'
-    ),
-    "border-style": unpack_to(
-        'border-top-style',
-        'border-right-style',
-        'border-bottom-style',
-        'border-left-style'
-    ),
-    "background": unpack_to(
-        'background-color',
-        'background-image',
-        'background-repeat',
-        'background-attachment',
-        'background-position',
-    ),
-    "font": unpack_to(
-        'font-style',
-        'font-variant',
-        'font-weight',
-        'font-size',
-        'line-height',
-        'font-size',
-        'font-family',
-    ),
-    "ouline": unpack_to(
-        'outline-color',
-        'outline-style',
-        'outline-width',
-    ),
 }

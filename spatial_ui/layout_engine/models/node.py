@@ -1,12 +1,17 @@
 from enum import Enum, auto
 from typing import List, Optional, Any
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from .base import BaseModel
 
 
 class NodeType(Enum):
     ELEMENT = auto()
+    CARET = auto()
+    PLACEHOLDER = auto()
     TEXT = auto()
+    SCROLLBAR = auto()
 
 
 class Node(BaseModel):

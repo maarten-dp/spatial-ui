@@ -2,12 +2,10 @@ from pydantic import BaseModel, Field
 
 from .block import BlockLayout
 from .text import TextLayout
-from ..models.style import BaseLayout, BoxModel
+from .misc import CaretLayout, ScrollbarLayout
+from .table import TableRowLayout, TableCellLayout
+from ..models.style import BaseLayout, BoxModel, Style
 
 
 class AnonymousLayout(BaseModel):
     container: BoxModel = Field(default_factory=BoxModel)
-
-    def render_layout(self, *args, **kwargs):
-        for child in self.childeren:
-            child.render_layout(self)

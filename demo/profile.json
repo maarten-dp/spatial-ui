@@ -1,0 +1,121 @@
+{
+    "elapsed_time_sec": 0.3560447692871094,
+    "files": {
+        "4-table.py": {
+            "functions": [],
+            "leaks": {},
+            "lines": [
+                {
+                    "line": "from sqlalchemy import Column, Integer, String, create_engine\n",
+                    "lineno": 3,
+                    "memory_samples": [
+                        [
+                            14692398,
+                            1.4813494718276956
+                        ],
+                        [
+                            30882550,
+                            3.174076766829367
+                        ],
+                        [
+                            40156709,
+                            4.746807838954032
+                        ],
+                        [
+                            59248272,
+                            6.332958118338947
+                        ],
+                        [
+                            109554622,
+                            7.816410193517471
+                        ]
+                    ],
+                    "n_avg_mb": 0.0,
+                    "n_copy_mb_s": 0.0,
+                    "n_cpu_percent_c": 0.0,
+                    "n_cpu_percent_python": 0.0,
+                    "n_gpu_avg_memory_mb": 0.0,
+                    "n_gpu_peak_memory_mb": 0.0,
+                    "n_gpu_percent": 0,
+                    "n_growth_mb": 7.420768737792969,
+                    "n_malloc_mb": 7.420768737792969,
+                    "n_mallocs": 0,
+                    "n_peak_mb": 7.420768737792969,
+                    "n_python_fraction": 0.9934176504674062,
+                    "n_sys_percent": 0.0,
+                    "n_usage_fraction": 0.6254263453987893
+                },
+                {
+                    "line": "from sqlalchemy.orm import Session\n",
+                    "lineno": 4,
+                    "memory_samples": [
+                        [
+                            119516469,
+                            9.47916378523094
+                        ],
+                        [
+                            134625500,
+                            11.061830337432607
+                        ]
+                    ],
+                    "n_avg_mb": 0.0,
+                    "n_copy_mb_s": 0.0,
+                    "n_cpu_percent_c": 0.0,
+                    "n_cpu_percent_python": 0.0,
+                    "n_gpu_avg_memory_mb": 0.0,
+                    "n_gpu_peak_memory_mb": 0.0,
+                    "n_gpu_percent": 0,
+                    "n_growth_mb": 2.9667797088623047,
+                    "n_malloc_mb": 2.9667797088623047,
+                    "n_mallocs": 0,
+                    "n_peak_mb": 2.9667797088623047,
+                    "n_python_fraction": 0.9940922227694031,
+                    "n_sys_percent": 0.0,
+                    "n_usage_fraction": 0.25004177551945717
+                },
+                {
+                    "line": "from spatial_ui.window import App\n",
+                    "lineno": 7,
+                    "memory_samples": [
+                        [
+                            158388513,
+                            12.635800951048118
+                        ]
+                    ],
+                    "n_avg_mb": 0.0,
+                    "n_copy_mb_s": 0.0,
+                    "n_cpu_percent_c": 0.0,
+                    "n_cpu_percent_python": 0.0,
+                    "n_gpu_avg_memory_mb": 0.0,
+                    "n_gpu_peak_memory_mb": 0.0,
+                    "n_gpu_percent": 0,
+                    "n_growth_mb": 1.4775876998901367,
+                    "n_malloc_mb": 1.4775876998901367,
+                    "n_mallocs": 0,
+                    "n_peak_mb": 1.4775876998901367,
+                    "n_python_fraction": 0.991075,
+                    "n_sys_percent": 0.0,
+                    "n_usage_fraction": 0.12453187908175359
+                }
+            ],
+            "percent_cpu_time": 0.0
+        }
+    },
+    "gpu": false,
+    "growth_rate": 107.1485690186639,
+    "max_footprint_fname": "4-table.py",
+    "max_footprint_lineno": 7,
+    "max_footprint_mb": 12.713323593139648,
+    "memory": true,
+    "program": "4-table.py",
+    "samples": [
+        [
+            14666313,
+            1.5021020995453123
+        ],
+        [
+            158378167,
+            12.715524497009314
+        ]
+    ]
+}

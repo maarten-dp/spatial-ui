@@ -17,6 +17,7 @@ def get_font(font_family: str, size: int):
     try:
         font = ImageFont.truetype(font=font_family, size=size)
     except OSError:
+        print(f"font not found {font_family}")
         font = ImageFont.truetype(font=DEFAULT_FONT_PATH, size=size)
 
     FONTS[key] = font

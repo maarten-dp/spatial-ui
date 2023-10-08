@@ -8,10 +8,12 @@ AUTO = 'auto'
 
 PRECENTAGE = '%'
 PIXEL = 'px'
+SECONDS = 's'
 
 UNITS = [
     PRECENTAGE,
     PIXEL,
+    SECONDS,
 ]
 
 HORIZONTAL = 'horizontal'
@@ -43,14 +45,16 @@ def node_factory(element):
     if hasattr(element, 'name'):
         kwargs['node_class'] = element.name
 
-    return Node(**kwargs)
+    node = Node(**kwargs)
+    return node
 
 
-def node_tree_from_nested_struct(nested_struct, key=node_factory):
-    root = node_factory(nested_struct)
-    if isinstance(nested_struct, (list, set, tuple)):
+def node_tree_from_nested_struct(nested_struct, factory=node_factory):
+    root = factory(nested_struct)
+    # if isinstance(nested_struct, (list, set, tuple)):
+    if not isinstance(nested_struct, str):
         for element in nested_struct:
-            root.add(node_tree_from_nested_struct(element))
+            root.add(node_tree_from_nested_struct(element, factory))
     return root
 
 
@@ -105,7 +109,7 @@ class Dimension:
         value, unit = parse_value(value, unit)
         self.value = value
         if unit not in UNITS:
-            raise ValueError(f'{unit} not supported')
+            raise ValueError(f'Unit "{unit}" not supported')
         self.unit = unit
 
     def calculated_value(self, container=None):

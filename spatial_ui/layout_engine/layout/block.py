@@ -4,7 +4,7 @@ from ..helpers import AUTO
 
 
 def handle_width_auto(width, margin_left, margin_right, underflow):
-    return underflow, 0, 0
+    return underflow, margin_left, margin_right
 
 
 def handle_margin_auto(width, margin_left, margin_right, underflow):
